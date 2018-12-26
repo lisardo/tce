@@ -1,23 +1,23 @@
 10   REM   Autor deste programa: Tarso B. Ledur Kist
 15   REM   Porto Alegre, 8/dez/2018.
 20   REM   Para interromper digitar "Fim".
-25   REM   Eletroforese em Toroide com L=80 cm e integração em intervalos de tempo dt.
+25   REM   Eletroforese em Toroide com L=80 cm e integracao em intervalos de tempo dt.
 
 30   CLEAR : CLS
 
-35   REM   Definição das Variáveis.
-40   REM   x=posição, v=velocidade, s2=variance, D=coef. de difusao, c=concentracao do analito
+35   REM   Definicao das Variaveis.
+40   REM   x=posicao, v=velocidade, s2=variance, D=coef. de difusao, c=concentracao do analito
 41   REM   na=num de analitos,
 45   DEFSTR A: DEFINT I-N: DIM x(100): DIM v(100): DIM c(100): DIM s2(100): DIM D(100)
 50   dt = .01: t = 0: na = 10
 
-80   REM  Definição do arquivo de saida dos resultados intermediarios e finais
+80   REM  Definicao do arquivo de saida dos resultados intermediarios e finais
 85   PRINT "Nome do arquivo para salvar os resultados="; : INPUT Arq$
 90   IF Arq$ = "End" THEN GOTO FinishProgram
 95   IF Arq$ = "end" THEN GOTO FinishProgram
 96   OPEN "O", #1, Arq$
 
-100  REM  Posição inicial e variancça inicial dos dez analitos (injecao da amostra)
+100  REM  Posicao inicial e variancca inicial dos dez analitos (injecao da amostra)
 105  FOR i = 1 TO na
 110  x(i) = 0
 115  s2(i) = 1
@@ -41,7 +41,7 @@
 190  PRINT "Instante de tempo - tau/m3 - para ligar zona termica pela 2a vez="; : INPUT m3: t1 = tau / m3
 195  PRINT "Instante de tempo - tau/m4 - para desligar zona termica="; : INPUT m4: t2 = tau / m4
 196  REM  Obs: m1>m2>m3>m4>1
-197  REM  As variaveis que podem ser uteis para o agente "aprende": x(i) e v(i). As váriáveis D(i) e C(i) também podem ser uteis.
+197  REM  As variaveis que podem ser uteis para o agente "aprende": x(i) e v(i). As variaveis D(i) e C(i) tambem podem ser uteis.
 
 
 200  REM  Agora eles vao correr (eletromigrar) ate que o "front running peak" complete uma volta.
@@ -59,17 +59,17 @@
 300  GOTO LoopVerification
 
 320  LABEL BandCompression
-320  REM A compressão termica da banda "i" por um fator de 2 ocorre quando esta condicao e´ satisfeita
+320  REM A compressao termica da banda "i" por um fator de 2 ocorre quando esta condicao e´ satisfeita
 330  IF y < 25 AND x(i) > 25 THEN s2(i) = s2(i) / 2
 
-332  REM  Se a banda estiver dentro da seccao com T diferente então o deslocamento será menor (sera' a metade)
+332  REM  Se a banda estiver dentro da seccao com T diferente entao o deslocamento sera menor (sera' a metade)
 335  x(i) = x(i) - (v(i) * dt / 2)
-340  REM  A difusão também será afetada: menor (resfriameno) ou maior (aquecimento). Normalmente ocorre aquecimento na zona termica. Então:
+340  REM  A difusao tambem sera afetada: menor (resfriameno) ou maior (aquecimento). Normalmente ocorre aquecimento na zona termica. Entao:
 345  s2(i) = s2(i) + (2 * D(i) * dt / 10)
 
 
 470  LABEL LoopVerification
-470  REM  Verificando se já completou uma volta
+470  REM  Verificando se ja completou uma volta
 475  IF x(1) > 80 THEN z = 1
 480  IF x(i) > 80 THEN x(i) = x(i) - 80
 490  NEXT i
@@ -78,10 +78,10 @@
 500  GOTO VariableRun
 
 600  LABEL PerfomanceMeter
-600  REM  Performance meters: R1 deve ser maior do que um (1) e R2 deve ser menor que cinco (5). Na situação ideal R1 > 1.5 e R2 < 2.5 !!
-601  REM  Se o Agente conseguir operar a máquina e chegar a este resultado então será algo revolucionário para muitas áreas !!!
-602  REM  Na prática significa que os picos estarão lado-a-lado, bem resolvidos (R1 > 1) mas não espaçados demais (R2 < 2.5), assim aumenta a capacidade de picos !!!!
-603  REM  Ou seja, dará para diagnosticar e prognosticar, por exemplo, centenas de doenças (de forma pressintomática) numa única amostra e numa única corrida !!!!!
+600  REM  Performance meters: R1 deve ser maior do que um (1) e R2 deve ser menor que cinco (5). Na situacao ideal R1 > 1.5 e R2 < 2.5 !!
+601  REM  Se o Agente conseguir operar a maquina e chegar a este resultado entao sera algo revolucionario para muitas areas !!!
+602  REM  Na pratica significa que os picos estarao lado-a-lado, bem resolvidos (R1 > 1) mas nao espacados demais (R2 < 2.5), assim aumenta a capacidade de picos !!!!
+603  REM  Ou seja, dara para diagnosticar e prognosticar, por exemplo, centenas de doencas (de forma pressintomatica) numa única amostra e numa única corrida !!!!!
 605  R1 = 0: R2 = 0: x(1) = x(1) + 80
 610  PRINT x(1), x(2), x(3), x(4), x(5), x(6), x(7), x(8), x(9), x(10)
 612  PRINT s2(1), s2(2), s2(3), s2(4), s2(5), s2(6), s2(7), s2(8), s2(9), s2(10)
