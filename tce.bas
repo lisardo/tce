@@ -13,8 +13,8 @@
 
 80   REM  Definição do arquivo de saida dos resultados intermediarios e finais
 85   PRINT "Nome do arquivo para salvar os resultados="; : INPUT Arq$
-90   IF Arq$ = "End" THEN GOTO 999
-95   IF Arq$ = "end" THEN GOTO 999
+90   IF Arq$ = "End" THEN GOTO FinishProgram
+95   IF Arq$ = "end" THEN GOTO FinishProgram
 96   OPEN "O", #1, Arq$
 
 100  REM  Posição inicial e variancça inicial dos dez analitos (injecao da amostra)
@@ -31,10 +31,11 @@
 155  tau = 80 / v(1)
 160  t = 0
 
+169  LABEL VariableInput
 170  REM  Sobre estas variaveis o agente (Machine Learning Agent) deve atuar:
 175  PRINT "Dar mais uma volta (End=nao)"; " "; : INPUT a$
-176  IF a$ = "End" THEN GOTO 999
-177  IF a$ = "end" THEN GOTO 999
+176  IF a$ = "End" THEN GOTO FinishProgram
+177  IF a$ = "end" THEN GOTO FinishProgram
 180  PRINT "Instante de tempo - tau/m1 - para ligar zona termica pela 1a vez="; : INPUT m1: t1 = tau / m1
 185  PRINT "Instante de tempo - tau/m2 - para desligar zona termica="; : INPUT m2: t2 = tau / m2
 190  PRINT "Instante de tempo - tau/m3 - para ligar zona termica pela 2a vez="; : INPUT m3: t1 = tau / m3
@@ -42,19 +43,22 @@
 196  REM  Obs: m1>m2>m3>m4>1
 197  REM  As variaveis que podem ser uteis para o agente "aprende": x(i) e v(i). As váriáveis D(i) e C(i) também podem ser uteis.
 
+
 200  REM  Agora eles vao correr (eletromigrar) ate que o "front running peak" complete uma volta.
 205  tt = 0
+210
 210  REM
 215  t = t + dt: tt = tt + dt: z = 0
 
 255  FOR i = 1 TO na
 258  y = x(1)
 260  x(i) = x(i) + v(i) * dt: s2(i) = s2(i) + 2 * D(i) * dt
-265  IF x(i) > 35 OR x(i) < 25 THEN GOTO 470
-280  IF tt > t1 AND tt < t2 THEN GOTO 320
-290  IF tt > t3 AND tt < t4 THEN GOTO 320
-300  GOTO 470
+265  IF x(i) > 35 OR x(i) < 25 THEN GOTO LoopVerification
+280  IF tt > t1 AND tt < t2 THEN GOTO BandCompression
+290  IF tt > t3 AND tt < t4 THEN GOTO BandCompression
+300  GOTO LoopVerification
 
+320  LABEL BandCompression
 320  REM A compressão termica da banda "i" por um fator de 2 ocorre quando esta condicao e´ satisfeita
 330  IF y < 25 AND x(i) > 25 THEN s2(i) = s2(i) / 2
 
@@ -63,14 +67,17 @@
 340  REM  A difusão também será afetada: menor (resfriameno) ou maior (aquecimento). Normalmente ocorre aquecimento na zona termica. Então:
 345  s2(i) = s2(i) + (2 * D(i) * dt / 10)
 
+
+470  LABEL LoopVerification
 470  REM  Verificando se já completou uma volta
 475  IF x(1) > 80 THEN z = 1
 480  IF x(i) > 80 THEN x(i) = x(i) - 80
 490  NEXT i
-495  IF z = 1 GOTO 600
+495  IF z = 1 GOTO PerfomanceMeter
 
-500  GOTO 210
+500  GOTO VariableRun
 
+600  LABEL PerfomanceMeter
 600  REM  Performance meters: R1 deve ser maior do que um (1) e R2 deve ser menor que cinco (5). Na situação ideal R1 > 1.5 e R2 < 2.5 !!
 601  REM  Se o Agente conseguir operar a máquina e chegar a este resultado então será algo revolucionário para muitas áreas !!!
 602  REM  Na prática significa que os picos estarão lado-a-lado, bem resolvidos (R1 > 1) mas não espaçados demais (R2 < 2.5), assim aumenta a capacidade de picos !!!!
@@ -98,10 +105,11 @@
 850  PRINT #1, "  "
 860  PrevR1 = R1: PrevR2 = R2
 
-890  GOTO 170
+890  GOTO VariableInput
 
 900  REM
 
 950  CLOSE #1
 
+998  LABEL FinishProgram
 999  END
