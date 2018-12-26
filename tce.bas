@@ -2,27 +2,22 @@
 15   REM   Porto Alegre, 8/dez/2018.
 20   REM   Para interromper digitar "Fim".
 25   REM   Eletroforese em Toroide com L=80 cm e integracao em intervalos de tempo dt.
-
 30   CLEAR : CLS
-
 35   REM   Definicao das Variaveis.
 40   REM   x=posicao, v=velocidade, s2=variance, D=coef. de difusao, c=concentracao do analito
 41   REM   na=num de analitos,
 45   DEFSTR A: DEFINT I-N: DIM x(100): DIM v(100): DIM c(100): DIM s2(100): DIM D(100)
 50   dt = .01: t = 0: na = 10
-
 80   REM  Definicao do arquivo de saida dos resultados intermediarios e finais
 85   PRINT "Nome do arquivo para salvar os resultados="; : INPUT Arq$
 90   IF Arq$ = "End" THEN GOTO FinishProgram
 95   IF Arq$ = "end" THEN GOTO FinishProgram
 96   OPEN "O", #1, Arq$
-
 100  REM  Posicao inicial e variancca inicial dos dez analitos (injecao da amostra)
 105  FOR i = 1 TO na
 110  x(i) = 0
 115  s2(i) = 1
 120  NEXT i
-
 130  REM  Velocidades, cof de difusao e concentracao de cada um dos dez analitos
 135  REM  As velocidades devem estar em ordem decrescente de v(1) a v(10)
 140  v(1) = 1.1: v(2) = 1.095: v(3) = 1.091: v(4) = 1.083: v(5) = 1.081: v(6) = 1.08: v(7) = 1.079: v(8) = 1.077: v(9) = 1.07: v(10) = 1.065
@@ -30,7 +25,6 @@
 150  c(1) = 10: c(2) = 5: c(3) = 5: c(4) = 4: c(5) = 1: c(6) = 5: c(7) = 5: c(8) = 8: c(9) = 8: c(10) = 7
 155  tau = 80 / v(1)
 160  t = 0
-
 169  LABEL VariableInput
 170  REM  Sobre estas variaveis o agente (Machine Learning Agent) deve atuar:
 175  PRINT "Dar mais uma volta (End=nao)"; " "; : INPUT a$
@@ -42,14 +36,11 @@
 195  PRINT "Instante de tempo - tau/m4 - para desligar zona termica="; : INPUT m4: t2 = tau / m4
 196  REM  Obs: m1>m2>m3>m4>1
 197  REM  As variaveis que podem ser uteis para o agente "aprende": x(i) e v(i). As variaveis D(i) e C(i) tambem podem ser uteis.
-
-
 200  REM  Agora eles vao correr (eletromigrar) ate que o "front running peak" complete uma volta.
 205  tt = 0
-210
+209  LABEL VariableRun
 210  REM
 215  t = t + dt: tt = tt + dt: z = 0
-
 255  FOR i = 1 TO na
 258  y = x(1)
 260  x(i) = x(i) + v(i) * dt: s2(i) = s2(i) + 2 * D(i) * dt
@@ -57,17 +48,13 @@
 280  IF tt > t1 AND tt < t2 THEN GOTO BandCompression
 290  IF tt > t3 AND tt < t4 THEN GOTO BandCompression
 300  GOTO LoopVerification
-
 320  LABEL BandCompression
 320  REM A compressao termica da banda "i" por um fator de 2 ocorre quando esta condicao e´ satisfeita
 330  IF y < 25 AND x(i) > 25 THEN s2(i) = s2(i) / 2
-
 332  REM  Se a banda estiver dentro da seccao com T diferente entao o deslocamento sera menor (sera' a metade)
 335  x(i) = x(i) - (v(i) * dt / 2)
 340  REM  A difusao tambem sera afetada: menor (resfriameno) ou maior (aquecimento). Normalmente ocorre aquecimento na zona termica. Entao:
 345  s2(i) = s2(i) + (2 * D(i) * dt / 10)
-
-
 470  LABEL LoopVerification
 470  REM  Verificando se ja completou uma volta
 475  IF x(1) > 80 THEN z = 1
